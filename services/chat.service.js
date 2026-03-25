@@ -156,7 +156,13 @@ async function searchProductsByImageSimilarity(imageInput, limit = MAX_PRODUCTS_
   const WINDOW_FROM_BEST = 6;
 
   const scopeClause = buildStoreScopeOrLegacyClause(storeId);
-  const baseFilter = { images: { $exists: true, $type: "array", $ne: [] } };
+  // Important: do NOT compute missing hashes inside a request — it can be extremely slow
+  // (downloads + sharp work for many products) and leads to client-side "canceled" timeouts.
+  // Instead, only consider products that already have precomputed hashes.
+  const baseFilter = {
+    images: { $exists: true, $type: "array", $ne: [] },
+    imageHashes: { $exists: true, $type: "array", $ne: [] },
+  };
   const filter = scopeClause ? { $and: [scopeClause, baseFilter] } : baseFilter;
 
   const candidates = await Product.find(filter)
@@ -181,13 +187,8 @@ async function searchProductsByImageSimilarity(imageInput, limit = MAX_PRODUCTS_
 
   const scored = [];
   for (const p of candidates) {
-    let hashes = Array.isArray(p.imageHashes) ? p.imageHashes : [];
-    if (hashes.length === 0) {
-      hashes = await computeHashesForImages(p.images, { maxImages: 2 });
-      if (hashes.length > 0) {
-        Product.updateOne({ _id: p._id }, { $set: { imageHashes: hashes } }).catch(() => {});
-      }
-    }
+    const hashes = Array.isArray(p.imageHashes) ? p.imageHashes : [];
+    if (hashes.length === 0) continue;
     let best = Number.POSITIVE_INFINITY;
     for (const qh of queryHashes) {
       for (const h of hashes) {

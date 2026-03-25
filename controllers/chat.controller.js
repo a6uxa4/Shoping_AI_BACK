@@ -53,6 +53,12 @@ const getConversation = async (req, res, next) => {
  */
 const sendMessage = async (req, res, next) => {
   try {
+    let aborted = false;
+    req.on("aborted", () => {
+      aborted = true;
+      console.warn("Chat request aborted by client");
+    });
+
     const { message, image, mimeType, conversationId, guestId } = req.body || {};
 
     if (!message && !(image && String(image).trim())) {
@@ -97,6 +103,9 @@ const sendMessage = async (req, res, next) => {
       history,
       storeId
     );
+
+    // If the client already canceled the request, don't waste time writing to DB.
+    if (aborted) return;
 
     const productIds = (products || []).map((p) => p.id);
 
