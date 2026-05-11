@@ -2,7 +2,7 @@ const { Category } = require("../models/manual.model");
 
 /**
  * GET /api/manual/categories
- * Список всех категорий (справочник). Публично, без токена.
+ * Public — list of all categories.
  */
 const getCategories = async (req, res, next) => {
   try {
@@ -23,7 +23,7 @@ const getCategories = async (req, res, next) => {
 
 /**
  * POST /api/manual/categories
- * Создать категорию. Только SUPER_ADMIN.
+ * Create a category. SUPER_ADMIN only.
  */
 const createCategory = async (req, res, next) => {
   try {
@@ -31,7 +31,7 @@ const createCategory = async (req, res, next) => {
     if (!name || typeof name !== "string" || !name.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Укажите название категории (name)",
+        message: "Category name is required",
       });
     }
     const category = await Category.create({ name: name.trim() });
@@ -45,7 +45,7 @@ const createCategory = async (req, res, next) => {
     if (err.code === 11000) {
       return res.status(409).json({
         success: false,
-        message: "Категория с таким названием уже существует",
+        message: "A category with this name already exists",
       });
     }
     next(err);
@@ -54,7 +54,7 @@ const createCategory = async (req, res, next) => {
 
 /**
  * PUT /api/manual/categories/:id
- * Обновить категорию. Только SUPER_ADMIN.
+ * Update a category. SUPER_ADMIN only.
  */
 const updateCategory = async (req, res, next) => {
   try {
@@ -63,7 +63,7 @@ const updateCategory = async (req, res, next) => {
     if (!name || typeof name !== "string" || !name.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Укажите название категории (name)",
+        message: "Category name is required",
       });
     }
     const category = await Category.findByIdAndUpdate(
@@ -74,7 +74,7 @@ const updateCategory = async (req, res, next) => {
     if (!category) {
       return res.status(404).json({
         success: false,
-        message: "Категория не найдена",
+        message: "Category not found",
       });
     }
     return res.json({
@@ -85,7 +85,7 @@ const updateCategory = async (req, res, next) => {
     if (err.code === 11000) {
       return res.status(409).json({
         success: false,
-        message: "Категория с таким названием уже существует",
+        message: "A category with this name already exists",
       });
     }
     next(err);
@@ -94,7 +94,7 @@ const updateCategory = async (req, res, next) => {
 
 /**
  * DELETE /api/manual/categories/:id
- * Удалить категорию. Только SUPER_ADMIN.
+ * Delete a category. SUPER_ADMIN only.
  */
 const deleteCategory = async (req, res, next) => {
   try {
@@ -103,12 +103,12 @@ const deleteCategory = async (req, res, next) => {
     if (!category) {
       return res.status(404).json({
         success: false,
-        message: "Категория не найдена",
+        message: "Category not found",
       });
     }
     return res.json({
       success: true,
-      data: { message: "Категория удалена" },
+      data: { message: "Category deleted" },
     });
   } catch (err) {
     next(err);

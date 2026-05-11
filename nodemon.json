@@ -1,0 +1,6 @@
+{
+  "watch": [".", ".env"],
+  "ext": "js,mjs,cjs,json",
+  "ignore": ["node_modules", "public/swagger.json"],
+  "delay": 250
+}

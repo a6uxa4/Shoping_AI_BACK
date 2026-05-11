@@ -11,7 +11,7 @@ function isValidObjectId(id) {
 }
 
 /**
- * GET /api/chat — история диалога текущего пользователя.
+ * GET /api/chat — conversation history for the current user.
  */
 const getConversation = async (req, res, next) => {
   try {
@@ -48,7 +48,7 @@ const getConversation = async (req, res, next) => {
 };
 
 /**
- * POST /api/chat — отправить сообщение боту (текст и/или фото). Бот ответит и может приложить подборку товаров.
+ * POST /api/chat — send a message to the bot (text and/or image). The bot replies and may attach matching products.
  * Body: { message: string, image?: string (base64), mimeType?: string, conversationId?: string, guestId?: string }
  */
 const sendMessage = async (req, res, next) => {
@@ -64,7 +64,7 @@ const sendMessage = async (req, res, next) => {
     if (!message && !(image && String(image).trim())) {
       return res.status(400).json({
         success: false,
-        data: { message: "Укажите message (текст) и/или image (base64 фото)." },
+        data: { message: "Provide message (text) and/or image (base64 photo)." },
       });
     }
 
@@ -77,7 +77,7 @@ const sendMessage = async (req, res, next) => {
     } else if (isValidObjectId(conversationId)) {
       conv = await Conversation.findById(conversationId);
       if (conv && conv.userId) {
-        // Не даём писать в "чужую" авторизованную беседу без токена
+        // Do not allow writing to someone else's authenticated conversation without a token.
         conv = null;
       }
     } else if (effectiveGuestId) {
@@ -111,7 +111,7 @@ const sendMessage = async (req, res, next) => {
 
     conv.messages.push({
       role: "user",
-      content: message || "[фото]",
+      content: message || "[photo]",
     });
     conv.messages.push({
       role: "assistant",
@@ -136,7 +136,7 @@ const sendMessage = async (req, res, next) => {
     if (err.message && err.message.includes("OPENAI_API_KEY")) {
       return res.status(503).json({
         success: false,
-        data: { message: "Чат недоступен: не задан OPENAI_API_KEY в .env" },
+        data: { message: "Chat is unavailable: OPENAI_API_KEY is not set in .env" },
       });
     }
     next(err);

@@ -1,4 +1,5 @@
 const { User, ROLES } = require("../models/auth.model");
+const { StoreRequest } = require("../models/storeRequest.model");
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
@@ -6,7 +7,7 @@ const MAX_LIMIT = 100;
 
 /**
  * GET /api/users/admin?page=1&limit=10
- * Список всех admin с пагинацией (только super_admin)
+ * List all admins with pagination (SUPER_ADMIN only).
  */
 const getAllAdmins = async (req, res, next) => {
   try {
@@ -48,7 +49,7 @@ const getAllAdmins = async (req, res, next) => {
 
 /**
  * POST /api/users/admin
- * Создать admin (только super_admin)
+ * Create an admin (SUPER_ADMIN only).
  * body: { login, password, storeName }
  */
 const createAdmin = async (req, res, next) => {
@@ -58,7 +59,7 @@ const createAdmin = async (req, res, next) => {
     if (!login || !password || !storeName) {
       return res.status(400).json({
         success: false,
-        message: "Укажите login, password и storeName",
+        message: "login, password and storeName are required",
       });
     }
 
@@ -66,7 +67,7 @@ const createAdmin = async (req, res, next) => {
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Некорректный login",
+        message: "Invalid login",
       });
     }
 
@@ -74,7 +75,7 @@ const createAdmin = async (req, res, next) => {
     if (existing) {
       return res.status(409).json({
         success: false,
-        message: "Пользователь с таким login уже существует",
+        message: "A user with this login already exists",
       });
     }
 
@@ -99,7 +100,7 @@ const createAdmin = async (req, res, next) => {
 
 /**
  * PUT /api/users/admin/:id
- * Обновить admin (только super_admin)
+ * Update an admin (SUPER_ADMIN only).
  * body: { login?, password?, storeName? }
  */
 const updateAdmin = async (req, res, next) => {
@@ -111,13 +112,13 @@ const updateAdmin = async (req, res, next) => {
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "Пользователь не найден" });
+        .json({ success: false, message: "User not found" });
     }
 
     if (user.role !== ROLES.ADMIN) {
       return res.status(400).json({
         success: false,
-        message: "Можно обновлять только пользователей с ролью admin",
+        message: "Only users with the admin role can be updated here",
       });
     }
 
@@ -126,14 +127,14 @@ const updateAdmin = async (req, res, next) => {
       if (!email) {
         return res
           .status(400)
-          .json({ success: false, message: "Некорректный login" });
+          .json({ success: false, message: "Invalid login" });
       }
 
       const existing = await User.findOne({ email, _id: { $ne: user._id } });
       if (existing) {
         return res.status(409).json({
           success: false,
-          message: "Пользователь с таким login уже существует",
+          message: "A user with this login already exists",
         });
       }
       user.email = email;
@@ -144,7 +145,7 @@ const updateAdmin = async (req, res, next) => {
       if (!trimmed) {
         return res
           .status(400)
-          .json({ success: false, message: "Некорректный storeName" });
+          .json({ success: false, message: "Invalid storeName" });
       }
       user.storeName = trimmed;
     }
@@ -154,7 +155,7 @@ const updateAdmin = async (req, res, next) => {
       if (pwd.length < 6) {
         return res.status(400).json({
           success: false,
-          message: "password должен быть минимум 6 символов",
+          message: "Password must be at least 6 characters",
         });
       }
       user.password = pwd;
@@ -172,7 +173,10 @@ const updateAdmin = async (req, res, next) => {
 
 /**
  * DELETE /api/users/admin/:id
- * Удалить admin (только super_admin)
+ * Delete an admin (SUPER_ADMIN only).
+ *
+ * Also removes any related store applications (matched by email) so the
+ * Store applications tab does not show ghost entries after the admin is gone.
  */
 const deleteAdmin = async (req, res, next) => {
   try {
@@ -182,18 +186,30 @@ const deleteAdmin = async (req, res, next) => {
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "Пользователь не найден" });
+        .json({ success: false, message: "User not found" });
     }
 
     if (user.role !== ROLES.ADMIN) {
       return res.status(400).json({
         success: false,
-        message: "Можно удалять только пользователей с ролью admin",
+        message: "Only users with the admin role can be deleted here",
       });
     }
 
     await User.deleteOne({ _id: user._id });
-    return res.json({ success: true, data: { deleted: true } });
+
+    let removedRequests = 0;
+    if (user.email) {
+      const result = await StoreRequest.deleteMany({
+        email: String(user.email).toLowerCase(),
+      });
+      removedRequests = result?.deletedCount || 0;
+    }
+
+    return res.json({
+      success: true,
+      data: { deleted: true, removedStoreRequests: removedRequests },
+    });
   } catch (err) {
     next(err);
   }

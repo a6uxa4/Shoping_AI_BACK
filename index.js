@@ -2,11 +2,16 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const compression = require("compression");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./public/swagger.json");
 
 dotenv.config();
 const app = express();
+
+// Gzip responses. This is the biggest single win when products have base64
+// images embedded in the documents — those compress 4-6x.
+app.use(compression());
 
 mongoose
   .connect(process.env.MONGO_URL)
@@ -17,7 +22,7 @@ mongoose
     console.error("Error connecting to MongoDB:", err.message);
   });
 
-// Миграция индексов для гостевого чата (исправляет старый уникальный индекс userId_1)
+// Index migration for guest chat (fixes the legacy unique userId_1 index)
 mongoose.connection.on("connected", async () => {
   try {
     const { Conversation } = require("./models/conversation.model");
@@ -37,7 +42,7 @@ mongoose.connection.on("connected", async () => {
       { unique: true, sparse: true, name: "guestId_1" }
     );
   } catch (err) {
-    // Не валим сервер из-за индексов: Mongo может быть без прав dropIndex
+    // Do not crash the server because of indexes: Mongo may lack dropIndex rights.
     console.warn("Conversation indexes init warning:", err.message || err);
   }
 });
@@ -51,7 +56,7 @@ app.use(
   }),
 );
 
-// Увеличен лимит для загрузки base64-фото при ИИ-поиске (по умолчанию ~100kb)
+// Larger body limit so the AI image search can accept base64 photos (default ~100kb).
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 
@@ -71,6 +76,15 @@ app.use("/api/products", productRoutes);
 const chatRoutes = require("./routes/chat.routes");
 app.use("/api/chat", chatRoutes);
 
+const cartRoutes = require("./routes/cart.routes");
+app.use("/api/cart", cartRoutes);
+
+const orderRoutes = require("./routes/order.routes");
+app.use("/api/orders", orderRoutes);
+
+const storeRequestRoutes = require("./routes/storeRequest.routes");
+app.use("/api/store-requests", storeRequestRoutes);
+
 // SWAGGER
 app.use("/swagger-ui", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -78,14 +92,14 @@ app.use((err, req, res, next) => {
   const status = err.status ?? err.statusCode;
   const message = err.message || "Internal Server Error";
 
-  // Ошибки OpenAI: квота исчерпана или нет оплаты (429)
+  // OpenAI errors: quota exceeded or unpaid plan (429)
   const isOpenAIQuotaError =
     status === 429 || (message && (message.includes("quota") || message.includes("429")));
   if (isOpenAIQuotaError) {
     return res.status(503).json({
       success: false,
       message:
-        "ИИ временно недоступен: исчерпана квота OpenAI. Проверьте баланс и тариф на https://platform.openai.com/account/billing",
+        "AI is temporarily unavailable: OpenAI quota exceeded. Please check your balance and plan at https://platform.openai.com/account/billing",
       statusCode: 503,
     });
   }
@@ -111,11 +125,21 @@ function getLocalIP() {
   return "localhost";
 }
 
-app.listen(PORT, "0.0.0.0", () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   const host = getLocalIP();
   console.log(`Server listening on port ${PORT}`);
   console.log(`  Local:   http://localhost:${PORT}`);
-  console.log(`  Network: http://${host}:${PORT}  ← для фронта`);
+  console.log(`  Network: http://${host}:${PORT}  <- for the frontend`);
 });
 
-mongoose.set("debug", true);
+// Allow long-running AI / image upload requests (3 minutes). Node defaults
+// to 5 min requestTimeout, but headersTimeout is only 60 s, so we raise both.
+server.requestTimeout = 5 * 60 * 1000;
+server.headersTimeout = 5 * 60 * 1000;
+server.keepAliveTimeout = 65 * 1000;
+
+// Mongoose query logging is very noisy and costs a lot when documents are
+// large (every query is JSON-stringified to the console). Opt in via env.
+if (process.env.MONGOOSE_DEBUG === "true") {
+  mongoose.set("debug", true);
+}

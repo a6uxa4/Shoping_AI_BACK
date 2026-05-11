@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
 const ROLES = {
+  CUSTOMER: "CUSTOMER",
   ADMIN: "ADMIN",
   SUPER_ADMIN: "SUPER_ADMIN",
 };
@@ -27,12 +28,20 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ROLES,
-      default: ROLES.ADMIN,
+      enum: Object.values(ROLES),
+      default: ROLES.CUSTOMER,
     },
     name: {
       type: String,
       trim: true,
+    },
+    phone: {
+      type: String,
+      trim: true,
+    },
+    mustChangePassword: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },

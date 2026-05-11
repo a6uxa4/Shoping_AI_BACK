@@ -10,8 +10,17 @@ const productSchema = new mongoose.Schema(
       index: true,
     },
     sizes: {
-      type: Array,
-      required: true,
+      type: [String],
+      default: [],
+    },
+    sizePrices: {
+      type: [
+        {
+          size: { type: String, required: true, trim: true },
+          price: { type: Number, required: true, min: 0 },
+        },
+      ],
+      default: [],
     },
     title: {
       type: String,
@@ -20,7 +29,12 @@ const productSchema = new mongoose.Schema(
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
+      required: false,
+    },
+    categories: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
       required: true,
+      default: [],
     },
     material: {
       type: String,
@@ -34,9 +48,29 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    // Total stock for simple products without per-variant rows. When the
+    // product has variants[], that array is the source of truth and this
+    // field is ignored on read (UI sums variant.stock).
+    stock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     colors: {
-      type: Array,
-      required: true,
+      type: [String],
+      default: [],
+    },
+    variants: {
+      type: [
+        {
+          size: { type: String, required: true, trim: true },
+          color: { type: String, required: true, trim: true },
+          price: { type: Number, required: true, min: 0 },
+          stock: { type: Number, required: true, min: 0, default: 0 },
+          sku: { type: String, trim: true },
+        },
+      ],
+      default: [],
     },
     images: {
       type: Array,

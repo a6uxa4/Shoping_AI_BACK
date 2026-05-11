@@ -4,10 +4,12 @@ const { authenticate } = require("../middleware/auth.middleware");
 
 const router = express.Router();
 
-// Публичные
+// Public
+router.post("/register", authController.register);
 router.post("/login", authController.login);
 
-// Только для авторизованных
+// Authenticated only
 router.get("/me", authenticate, authController.getMe);
+router.post("/change-password", authenticate, authController.changePassword);
 
 module.exports = router;

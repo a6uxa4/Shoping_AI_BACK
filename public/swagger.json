@@ -7,7 +7,10 @@
   },
   "host": "localhost:8080",
   "basePath": "/",
-  "schemes": ["http", "https"],
+  "schemes": [
+    "http",
+    "https"
+  ],
   "securityDefinitions": {
     "Bearer": {
       "type": "apiKey",
@@ -19,58 +22,85 @@
   "paths": {
     "/api/auth/login": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Вход",
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": true,
-            "schema": { "$ref": "#/definitions/LoginBody" }
+            "schema": {
+              "$ref": "#/definitions/LoginBody"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Успех",
-            "schema": { "$ref": "#/definitions/LoginResponse" }
+            "schema": {
+              "$ref": "#/definitions/LoginResponse"
+            }
           },
           "401": {
             "description": "Неверные данные",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       }
     },
     "/api/auth/me": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Текущий пользователь",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Успех",
-            "schema": { "$ref": "#/definitions/MeResponse" }
+            "schema": {
+              "$ref": "#/definitions/MeResponse"
+            }
           },
           "401": {
             "description": "Нет токена или неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       }
     },
     "/api/chat": {
       "get": {
-        "tags": ["Chat"],
+        "tags": [
+          "Chat"
+        ],
         "summary": "История чата с ботом",
         "description": "Возвращает последние сообщения диалога текущего пользователя.",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Успех",
             "schema": {
               "type": "object",
               "properties": {
-                "success": { "type": "boolean", "example": true },
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
                 "data": {
                   "type": "object",
                   "properties": {
@@ -79,26 +109,53 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "role": { "type": "string", "enum": ["user", "assistant"] },
-                          "content": { "type": "string" },
-                          "productIds": { "type": "array", "items": { "type": "string" } }
+                          "role": {
+                            "type": "string",
+                            "enum": [
+                              "user",
+                              "assistant"
+                            ]
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "productIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
                         }
                       }
                     },
-                    "conversationId": { "type": "string", "nullable": true }
+                    "conversationId": {
+                      "type": "string",
+                      "nullable": true
+                    }
                   }
                 }
               }
             }
           },
-          "401": { "description": "Нет/неверный токен", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+          "401": {
+            "description": "Нет/неверный токен",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
         }
       },
       "post": {
-        "tags": ["Chat"],
+        "tags": [
+          "Chat"
+        ],
         "summary": "Отправить сообщение боту",
         "description": "Текст и/или фото. Бот ответит и может приложить подборку товаров (по запросу типа «платье на вечер» или по фото).",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
           {
             "in": "body",
@@ -107,9 +164,18 @@
             "schema": {
               "type": "object",
               "properties": {
-                "message": { "type": "string", "description": "Текст сообщения (привет, платье на вечер и т.д.)" },
-                "image": { "type": "string", "description": "Base64 изображения для поиска по фото (опционально)" },
-                "mimeType": { "type": "string", "default": "image/jpeg" }
+                "message": {
+                  "type": "string",
+                  "description": "Текст сообщения (привет, платье на вечер и т.д.)"
+                },
+                "image": {
+                  "type": "string",
+                  "description": "Base64 изображения для поиска по фото (опционально)"
+                },
+                "mimeType": {
+                  "type": "string",
+                  "default": "image/jpeg"
+                }
               }
             }
           }
@@ -120,14 +186,22 @@
             "schema": {
               "type": "object",
               "properties": {
-                "success": { "type": "boolean", "example": true },
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
                 "data": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string", "description": "Ответ бота" },
+                    "message": {
+                      "type": "string",
+                      "description": "Ответ бота"
+                    },
                     "products": {
                       "type": "array",
-                      "items": { "$ref": "#/definitions/ProductItem" },
+                      "items": {
+                        "$ref": "#/definitions/ProductItem"
+                      },
                       "description": "Подобранные товары (если запрос про товары или фото)"
                     }
                   }
@@ -135,278 +209,485 @@
               }
             }
           },
-          "400": { "description": "Нет message и image", "schema": { "$ref": "#/definitions/ErrorResponse" } },
-          "401": { "description": "Нет/неверный токен", "schema": { "$ref": "#/definitions/ErrorResponse" } },
-          "503": { "description": "Чат недоступен (нет OPENAI_API_KEY)", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+          "400": {
+            "description": "Нет message и image",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Нет/неверный токен",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "503": {
+            "description": "Чат недоступен (нет OPENAI_API_KEY)",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
         }
       }
     },
     "/api/users/admin": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Список admin с пагинацией (только super_admin)",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
-          { "name": "page", "in": "query", "type": "integer", "default": 1 },
-          { "name": "limit", "in": "query", "type": "integer", "default": 10 }
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "default": 10
+          }
         ],
         "responses": {
           "200": {
             "description": "Успех",
-            "schema": { "$ref": "#/definitions/GetAdminsResponse" }
+            "schema": {
+              "$ref": "#/definitions/GetAdminsResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (нужна роль super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       },
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Создать admin (только super_admin)",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": true,
-            "schema": { "$ref": "#/definitions/CreateAdminBody" }
+            "schema": {
+              "$ref": "#/definitions/CreateAdminBody"
+            }
           }
         ],
         "responses": {
           "201": {
             "description": "Создан admin",
-            "schema": { "$ref": "#/definitions/CreateAdminResponse" }
+            "schema": {
+              "$ref": "#/definitions/CreateAdminResponse"
+            }
           },
           "400": {
             "description": "Не хватает данных",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (нужна роль super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "409": {
             "description": "Пользователь уже существует",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       }
     },
     "/api/manual/categories": {
       "get": {
-        "tags": ["Manual (справочники)"],
+        "tags": [
+          "Manual (справочники)"
+        ],
         "summary": "Список категорий товара",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Успех",
-            "schema": { "$ref": "#/definitions/GetCategoriesResponse" }
+            "schema": {
+              "$ref": "#/definitions/GetCategoriesResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       },
       "post": {
-        "tags": ["Manual (справочники)"],
+        "tags": [
+          "Manual (справочники)"
+        ],
         "summary": "Создать категорию (только super_admin)",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": true,
-            "schema": { "$ref": "#/definitions/CategoryBody" }
+            "schema": {
+              "$ref": "#/definitions/CategoryBody"
+            }
           }
         ],
         "responses": {
           "201": {
             "description": "Категория создана",
-            "schema": { "$ref": "#/definitions/CategoryItemResponse" }
+            "schema": {
+              "$ref": "#/definitions/CategoryItemResponse"
+            }
           },
           "400": {
             "description": "Не указано name",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (нужна роль super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "409": {
             "description": "Категория с таким названием уже существует",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       }
     },
     "/api/manual/categories/{id}": {
       "put": {
-        "tags": ["Manual (справочники)"],
+        "tags": [
+          "Manual (справочники)"
+        ],
         "summary": "Обновить категорию (только super_admin)",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "type": "string" },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "in": "body",
             "name": "body",
             "required": true,
-            "schema": { "$ref": "#/definitions/CategoryBody" }
+            "schema": {
+              "$ref": "#/definitions/CategoryBody"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Обновлено",
-            "schema": { "$ref": "#/definitions/CategoryItemResponse" }
+            "schema": {
+              "$ref": "#/definitions/CategoryItemResponse"
+            }
           },
           "400": {
             "description": "Не указано name",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (нужна роль super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "404": {
             "description": "Категория не найдена",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "409": {
             "description": "Категория с таким названием уже существует",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       },
       "delete": {
-        "tags": ["Manual (справочники)"],
+        "tags": [
+          "Manual (справочники)"
+        ],
         "summary": "Удалить категорию (только super_admin)",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "type": "string" }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
         ],
         "responses": {
           "200": {
             "description": "Удалено",
-            "schema": { "$ref": "#/definitions/DeleteCategoryResponse" }
+            "schema": {
+              "$ref": "#/definitions/DeleteCategoryResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (нужна роль super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "404": {
             "description": "Категория не найдена",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       }
     },
     "/api/users/admin/{id}": {
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Обновить admin (только super_admin)",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "type": "string" },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "in": "body",
             "name": "body",
             "required": true,
-            "schema": { "$ref": "#/definitions/UpdateAdminBody" }
+            "schema": {
+              "$ref": "#/definitions/UpdateAdminBody"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Обновлено",
-            "schema": { "$ref": "#/definitions/UpdateAdminResponse" }
+            "schema": {
+              "$ref": "#/definitions/UpdateAdminResponse"
+            }
           },
           "400": {
             "description": "Некорректные данные",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (нужна роль super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "404": {
             "description": "Пользователь не найден",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "409": {
             "description": "login уже занят",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Удалить admin (только super_admin)",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "type": "string" }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
         ],
         "responses": {
           "200": {
             "description": "Удалено",
-            "schema": { "$ref": "#/definitions/DeleteAdminResponse" }
+            "schema": {
+              "$ref": "#/definitions/DeleteAdminResponse"
+            }
           },
           "400": {
             "description": "Можно удалять только admin",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (нужна роль super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "404": {
             "description": "Пользователь не найден",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       }
     },
     "/api/products": {
       "get": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "summary": "Список товаров для клиента (без пагинации)",
         "description": "Возвращает все подходящие товары (макс. 500). Фильтры: category, title, minPrice, maxPrice, season, material, productionCountry. ИИ: q/query — текст, image — base64 фото. Без pagination в ответе.",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
-          { "name": "category", "in": "query", "type": "string" },
-          { "name": "title", "in": "query", "type": "string" },
-          { "name": "minPrice", "in": "query", "type": "number" },
-          { "name": "maxPrice", "in": "query", "type": "number" },
-          { "name": "season", "in": "query", "type": "string" },
-          { "name": "material", "in": "query", "type": "string" },
-          { "name": "productionCountry", "in": "query", "type": "string" },
+          {
+            "name": "category",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "minPrice",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "maxPrice",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "season",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "material",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "productionCountry",
+            "in": "query",
+            "type": "string"
+          },
           {
             "name": "q",
             "in": "query",
@@ -438,18 +719,31 @@
             "schema": {
               "type": "object",
               "properties": {
-                "success": { "type": "boolean", "example": true },
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
                 "data": {
                   "type": "object",
                   "properties": {
                     "products": {
                       "type": "array",
-                      "items": { "$ref": "#/definitions/ProductItem" }
+                      "items": {
+                        "$ref": "#/definitions/ProductItem"
+                      }
                     },
-                    "aiUsed": { "type": "boolean" },
-                    "query": { "type": "string" },
-                    "describedAs": { "type": "string" },
-                    "aiFilters": { "type": "object" }
+                    "aiUsed": {
+                      "type": "boolean"
+                    },
+                    "query": {
+                      "type": "string"
+                    },
+                    "describedAs": {
+                      "type": "string"
+                    },
+                    "aiFilters": {
+                      "type": "object"
+                    }
                   }
                 }
               }
@@ -457,66 +751,146 @@
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "503": {
             "description": "ИИ недоступен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       },
       "post": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "summary": "Создать товар",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": true,
-            "schema": { "$ref": "#/definitions/CreateProductBody" }
+            "schema": {
+              "$ref": "#/definitions/CreateProductBody"
+            }
           }
         ],
         "responses": {
           "201": {
             "description": "Товар создан",
-            "schema": { "$ref": "#/definitions/ProductItemResponse" }
+            "schema": {
+              "$ref": "#/definitions/ProductItemResponse"
+            }
           },
           "400": {
             "description": "Не указаны title/category или категория не найдена",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (admin или super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       }
     },
     "/api/products/admin": {
       "get": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "summary": "Список товаров для админки (с пагинацией)",
         "description": "Только admin/super_admin. Те же фильтры и ИИ (q, query, image), в ответе pagination: page, limit, total, totalPages.",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
-          { "name": "page", "in": "query", "type": "integer", "default": 1 },
-          { "name": "limit", "in": "query", "type": "integer", "default": 10 },
-          { "name": "category", "in": "query", "type": "string" },
-          { "name": "title", "in": "query", "type": "string" },
-          { "name": "minPrice", "in": "query", "type": "number" },
-          { "name": "maxPrice", "in": "query", "type": "number" },
-          { "name": "season", "in": "query", "type": "string" },
-          { "name": "material", "in": "query", "type": "string" },
-          { "name": "productionCountry", "in": "query", "type": "string" },
-          { "name": "q", "in": "query", "type": "string" },
-          { "name": "query", "in": "query", "type": "string" },
-          { "name": "image", "in": "query", "type": "string" },
-          { "name": "mimeType", "in": "query", "type": "string" }
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "minPrice",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "maxPrice",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "season",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "material",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "productionCountry",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "image",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "mimeType",
+            "in": "query",
+            "type": "string"
+          }
         ],
         "responses": {
           "200": {
@@ -524,19 +898,34 @@
             "schema": {
               "type": "object",
               "properties": {
-                "success": { "type": "boolean", "example": true },
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
                 "data": {
                   "type": "object",
                   "properties": {
                     "products": {
                       "type": "array",
-                      "items": { "$ref": "#/definitions/ProductItem" }
+                      "items": {
+                        "$ref": "#/definitions/ProductItem"
+                      }
                     },
-                    "pagination": { "$ref": "#/definitions/Pagination" },
-                    "aiUsed": { "type": "boolean" },
-                    "query": { "type": "string" },
-                    "describedAs": { "type": "string" },
-                    "aiFilters": { "type": "object" }
+                    "pagination": {
+                      "$ref": "#/definitions/Pagination"
+                    },
+                    "aiUsed": {
+                      "type": "boolean"
+                    },
+                    "query": {
+                      "type": "string"
+                    },
+                    "describedAs": {
+                      "type": "string"
+                    },
+                    "aiFilters": {
+                      "type": "object"
+                    }
                   }
                 }
               }
@@ -544,24 +933,36 @@
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (admin/super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "503": {
             "description": "ИИ недоступен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       }
     },
     "/api/products/{id}": {
       "get": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "summary": "Один товар по ID",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -577,11 +978,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "success": { "type": "boolean", "example": true },
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
                 "data": {
                   "type": "object",
                   "properties": {
-                    "product": { "$ref": "#/definitions/ProductItem" }
+                    "product": {
+                      "$ref": "#/definitions/ProductItem"
+                    }
                   }
                 }
               }
@@ -589,72 +995,512 @@
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "404": {
             "description": "Товар не найден",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       },
       "put": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "summary": "Обновить товар",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "type": "string" },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "in": "body",
             "name": "body",
-            "schema": { "$ref": "#/definitions/UpdateProductBody" }
+            "schema": {
+              "$ref": "#/definitions/UpdateProductBody"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Обновлено",
-            "schema": { "$ref": "#/definitions/ProductItemResponse" }
+            "schema": {
+              "$ref": "#/definitions/ProductItemResponse"
+            }
           },
           "400": {
             "description": "Категория не найдена",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (admin или super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "404": {
             "description": "Товар не найден",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       },
       "delete": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "summary": "Удалить товар",
-        "security": [{ "Bearer": [] }],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "type": "string" }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
         ],
         "responses": {
           "200": {
             "description": "Удалено",
-            "schema": { "$ref": "#/definitions/DeleteProductResponse" }
+            "schema": {
+              "$ref": "#/definitions/DeleteProductResponse"
+            }
           },
           "401": {
             "description": "Нет/неверный токен",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "403": {
             "description": "Нет прав (admin или super_admin)",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           },
           "404": {
             "description": "Товар не найден",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Регистрация пользователя",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RegisterBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Успех",
+            "schema": {
+              "$ref": "#/definitions/LoginResponse"
+            }
+          },
+          "400": {
+            "description": "Некорректные данные",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "409": {
+            "description": "Пользователь уже существует",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/cart/me": {
+      "get": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Моя корзина",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успех",
+            "schema": {
+              "$ref": "#/definitions/CartResponse"
+            }
+          },
+          "401": {
+            "description": "Нет/неверный токен",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/cart/items": {
+      "post": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Добавить товар в корзину",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddCartItemBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успех",
+            "schema": {
+              "$ref": "#/definitions/CartResponse"
+            }
+          },
+          "400": {
+            "description": "Некорректные данные",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Нет/неверный токен",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Товар не найден",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/cart/items/{itemIndex}": {
+      "put": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Изменить количество позиции корзины",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "itemIndex",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateCartItemBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успех",
+            "schema": {
+              "$ref": "#/definitions/CartResponse"
+            }
+          },
+          "400": {
+            "description": "Ошибка данных/остатка",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Нет/неверный токен",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Позиция не найдена",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Удалить позицию из корзины",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "itemIndex",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успех",
+            "schema": {
+              "$ref": "#/definitions/CartResponse"
+            }
+          },
+          "401": {
+            "description": "Нет/неверный токен",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Позиция не найдена",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/checkout": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Оформить заказ",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CheckoutBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Заказ создан",
+            "schema": {
+              "$ref": "#/definitions/OrderResponse"
+            }
+          },
+          "400": {
+            "description": "Корзина пуста/ошибка данных",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Нет/неверный токен",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/my": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Мои заказы",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успех",
+            "schema": {
+              "$ref": "#/definitions/GetOrdersResponse"
+            }
+          },
+          "401": {
+            "description": "Нет/неверный токен",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/store-requests": {
+      "post": {
+        "tags": [
+          "Store Requests"
+        ],
+        "summary": "Подать заявку на создание магазина",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateStoreRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Заявка создана",
+            "schema": {
+              "$ref": "#/definitions/StoreRequestResponse"
+            }
+          },
+          "400": {
+            "description": "Некорректные данные",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Store Requests"
+        ],
+        "summary": "Список заявок (только super_admin)",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успех",
+            "schema": {
+              "$ref": "#/definitions/GetStoreRequestsResponse"
+            }
+          },
+          "401": {
+            "description": "Нет/неверный токен",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Нет прав",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/store-requests/{id}/approve": {
+      "post": {
+        "tags": [
+          "Store Requests"
+        ],
+        "summary": "Одобрить заявку (только super_admin)",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Заявка одобрена",
+            "schema": {
+              "$ref": "#/definitions/StoreRequestResponse"
+            }
+          },
+          "401": {
+            "description": "Нет/неверный токен",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Нет прав",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Заявка не найдена",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "409": {
+            "description": "Пользователь уже существует",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       }
@@ -664,11 +1510,17 @@
     "ErrorResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": false },
+        "success": {
+          "type": "boolean",
+          "example": false
+        },
         "data": {
           "type": "object",
           "properties": {
-            "message": { "type": "string", "description": "Текст ошибки" }
+            "message": {
+              "type": "string",
+              "description": "Текст ошибки"
+            }
           }
         }
       }
@@ -676,12 +1528,19 @@
     "LoginResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
-            "user": { "$ref": "#/definitions/UserObject" },
-            "token": { "type": "string" }
+            "user": {
+              "$ref": "#/definitions/UserObject"
+            },
+            "token": {
+              "type": "string"
+            }
           }
         }
       }
@@ -689,11 +1548,16 @@
     "MeResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
-            "user": { "$ref": "#/definitions/UserObject" }
+            "user": {
+              "$ref": "#/definitions/UserObject"
+            }
           }
         }
       }
@@ -701,36 +1565,72 @@
     "UserObject": {
       "type": "object",
       "properties": {
-        "_id": { "type": "string" },
-        "email": { "type": "string" },
-        "storeName": { "type": "string" },
-        "role": { "type": "string", "enum": ["ADMIN", "SUPER_ADMIN"] },
-        "name": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" }
+        "_id": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "storeName": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "CUSTOMER",
+            "ADMIN",
+            "SUPER_ADMIN"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "Pagination": {
       "type": "object",
       "properties": {
-        "page": { "type": "integer" },
-        "limit": { "type": "integer" },
-        "total": { "type": "integer" },
-        "totalPages": { "type": "integer" }
+        "page": {
+          "type": "integer"
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "totalPages": {
+          "type": "integer"
+        }
       }
     },
     "GetAdminsResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
             "users": {
               "type": "array",
-              "items": { "$ref": "#/definitions/UserObject" }
+              "items": {
+                "$ref": "#/definitions/UserObject"
+              }
             },
-            "pagination": { "$ref": "#/definitions/Pagination" }
+            "pagination": {
+              "$ref": "#/definitions/Pagination"
+            }
           }
         }
       }
@@ -738,11 +1638,16 @@
     "CreateAdminResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
-            "user": { "$ref": "#/definitions/UserObject" }
+            "user": {
+              "$ref": "#/definitions/UserObject"
+            }
           }
         }
       }
@@ -750,11 +1655,16 @@
     "UpdateAdminResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
-            "user": { "$ref": "#/definitions/UserObject" }
+            "user": {
+              "$ref": "#/definitions/UserObject"
+            }
           }
         }
       }
@@ -762,11 +1672,17 @@
     "DeleteAdminResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
-            "deleted": { "type": "boolean", "example": true }
+            "deleted": {
+              "type": "boolean",
+              "example": true
+            }
           }
         }
       }
@@ -774,20 +1690,29 @@
     "CategoryItem": {
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" }
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
       }
     },
     "GetCategoriesResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
             "categories": {
               "type": "array",
-              "items": { "$ref": "#/definitions/CategoryItem" }
+              "items": {
+                "$ref": "#/definitions/CategoryItem"
+              }
             }
           }
         }
@@ -796,11 +1721,16 @@
     "CategoryItemResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
-            "category": { "$ref": "#/definitions/CategoryItem" }
+            "category": {
+              "$ref": "#/definitions/CategoryItem"
+            }
           }
         }
       }
@@ -808,94 +1738,196 @@
     "DeleteCategoryResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
-            "message": { "type": "string", "example": "Категория удалена" }
+            "message": {
+              "type": "string",
+              "example": "Категория удалена"
+            }
           }
         }
       }
     },
     "LoginBody": {
       "type": "object",
-      "required": ["email", "password"],
+      "required": [
+        "email",
+        "password"
+      ],
       "properties": {
-        "email": { "type": "string" },
-        "password": { "type": "string" }
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
       }
     },
     "CreateAdminBody": {
       "type": "object",
-      "required": ["login", "password", "storeName"],
+      "required": [
+        "login",
+        "password",
+        "storeName"
+      ],
       "properties": {
-        "login": { "type": "string", "example": "admin@example.com" },
+        "login": {
+          "type": "string",
+          "example": "admin@example.com"
+        },
         "password": {
           "type": "string",
           "minLength": 6,
           "example": "password123"
         },
-        "storeName": { "type": "string", "example": "My Shop" }
+        "storeName": {
+          "type": "string",
+          "example": "My Shop"
+        }
       }
     },
     "UpdateAdminBody": {
       "type": "object",
       "properties": {
-        "login": { "type": "string", "example": "new-admin@example.com" },
+        "login": {
+          "type": "string",
+          "example": "new-admin@example.com"
+        },
         "password": {
           "type": "string",
           "minLength": 6,
           "example": "newpassword123"
         },
-        "storeName": { "type": "string", "example": "New Shop Name" }
+        "storeName": {
+          "type": "string",
+          "example": "New Shop Name"
+        }
       }
     },
     "CategoryBody": {
       "type": "object",
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "properties": {
-        "name": { "type": "string", "example": "Электроника" }
+        "name": {
+          "type": "string",
+          "example": "Электроника"
+        }
       }
     },
     "ProductItem": {
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
         "category": {
           "type": "string",
           "description": "ID категории (ObjectId)"
         },
-        "sizes": { "type": "array", "items": { "type": "string" } },
-        "material": { "type": "string" },
-        "description": { "type": "string" },
-        "price": { "type": "number" },
-        "colors": { "type": "array", "items": { "type": "string" } },
-        "images": { "type": "array", "items": { "type": "string" } },
-        "productionCountry": { "type": "string" },
-        "season": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" }
+        "sizes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sizePrices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SizePriceBody"
+          },
+          "description": "Цены по размерам"
+        },
+        "material": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "colors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "productionCountry": {
+          "type": "string"
+        },
+        "season": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Список ID категорий"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProductVariantBody"
+          }
+        }
       }
     },
     "GetProductsResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
             "products": {
               "type": "array",
-              "items": { "$ref": "#/definitions/ProductItem" }
+              "items": {
+                "$ref": "#/definitions/ProductItem"
+              }
             },
             "pagination": {
               "type": "object",
               "properties": {
-                "page": { "type": "integer" },
-                "limit": { "type": "integer" },
-                "total": { "type": "integer" },
-                "totalPages": { "type": "integer" }
+                "page": {
+                  "type": "integer"
+                },
+                "limit": {
+                  "type": "integer"
+                },
+                "total": {
+                  "type": "integer"
+                },
+                "totalPages": {
+                  "type": "integer"
+                }
               }
             }
           }
@@ -905,57 +1937,592 @@
     "ProductItemResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
-            "product": { "$ref": "#/definitions/ProductItem" }
+            "product": {
+              "$ref": "#/definitions/ProductItem"
+            }
           }
         }
       }
     },
     "CreateProductBody": {
       "type": "object",
-      "required": ["title", "category"],
+      "required": [
+        "title",
+        "categories"
+      ],
       "properties": {
-        "title": { "type": "string" },
+        "title": {
+          "type": "string"
+        },
         "category": {
           "type": "string",
           "description": "ID категории из справочника"
         },
-        "sizes": { "type": "array", "items": { "type": "string" } },
-        "material": { "type": "string" },
-        "description": { "type": "string" },
-        "price": { "type": "number" },
-        "colors": { "type": "array", "items": { "type": "string" } },
-        "images": { "type": "array", "items": { "type": "string" } },
-        "productionCountry": { "type": "string" },
-        "season": { "type": "string" }
+        "sizes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sizePrices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SizePriceBody"
+          }
+        },
+        "material": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "colors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "productionCountry": {
+          "type": "string"
+        },
+        "season": {
+          "type": "string"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Список ID категорий"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProductVariantBody"
+          }
+        }
       }
     },
     "UpdateProductBody": {
       "type": "object",
       "properties": {
-        "title": { "type": "string" },
-        "category": { "type": "string" },
-        "sizes": { "type": "array", "items": { "type": "string" } },
-        "material": { "type": "string" },
-        "description": { "type": "string" },
-        "price": { "type": "number" },
-        "colors": { "type": "array", "items": { "type": "string" } },
-        "images": { "type": "array", "items": { "type": "string" } },
-        "productionCountry": { "type": "string" },
-        "season": { "type": "string" }
+        "title": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "sizes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sizePrices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SizePriceBody"
+          }
+        },
+        "material": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "colors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "productionCountry": {
+          "type": "string"
+        },
+        "season": {
+          "type": "string"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProductVariantBody"
+          }
+        }
       }
     },
     "DeleteProductResponse": {
       "type": "object",
       "properties": {
-        "success": { "type": "boolean", "example": true },
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
         "data": {
           "type": "object",
           "properties": {
-            "message": { "type": "string", "example": "Товар удалён" }
+            "message": {
+              "type": "string",
+              "example": "Товар удалён"
+            }
+          }
+        }
+      }
+    },
+    "RegisterBody": {
+      "type": "object",
+      "required": [
+        "email",
+        "password"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 6,
+          "example": "password123"
+        },
+        "name": {
+          "type": "string",
+          "example": "Aliya"
+        }
+      }
+    },
+    "ProductVariantBody": {
+      "type": "object",
+      "required": [
+        "size",
+        "color",
+        "price",
+        "stock"
+      ],
+      "properties": {
+        "size": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "stock": {
+          "type": "integer"
+        },
+        "sku": {
+          "type": "string"
+        }
+      }
+    },
+    "SizePriceBody": {
+      "type": "object",
+      "required": [
+        "size",
+        "price"
+      ],
+      "properties": {
+        "size": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        }
+      }
+    },
+    "CartItem": {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string"
+        },
+        "size": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "priceAtAdd": {
+          "type": "number"
+        }
+      }
+    },
+    "Cart": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CartItem"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "CartResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "cart": {
+              "$ref": "#/definitions/Cart"
+            }
+          }
+        }
+      }
+    },
+    "AddCartItemBody": {
+      "type": "object",
+      "required": [
+        "productId",
+        "size",
+        "color",
+        "quantity"
+      ],
+      "properties": {
+        "productId": {
+          "type": "string"
+        },
+        "size": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "UpdateCartItemBody": {
+      "type": "object",
+      "required": [
+        "quantity"
+      ],
+      "properties": {
+        "quantity": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "CheckoutBody": {
+      "type": "object",
+      "required": [
+        "customerName",
+        "customerEmail",
+        "customerPhone",
+        "shippingAddress",
+        "city",
+        "country",
+        "postalCode"
+      ],
+      "properties": {
+        "customerName": {
+          "type": "string"
+        },
+        "customerEmail": {
+          "type": "string"
+        },
+        "customerPhone": {
+          "type": "string"
+        },
+        "shippingAddress": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        }
+      }
+    },
+    "OrderItem": {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "size": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "price": {
+          "type": "number"
+        },
+        "lineTotal": {
+          "type": "number"
+        }
+      }
+    },
+    "Order": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "customerName": {
+          "type": "string"
+        },
+        "customerEmail": {
+          "type": "string"
+        },
+        "customerPhone": {
+          "type": "string"
+        },
+        "shippingAddress": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "totalAmount": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PLACED",
+            "PAID",
+            "SHIPPED",
+            "DELIVERED",
+            "CANCELLED"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "OrderResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "order": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        }
+      }
+    },
+    "GetOrdersResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "orders": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Order"
+              }
+            }
+          }
+        }
+      }
+    },
+    "CreateStoreRequestBody": {
+      "type": "object",
+      "required": [
+        "fullName",
+        "email",
+        "storeName"
+      ],
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "storeName": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "StoreRequest": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "fullName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "storeName": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "processedBy": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "StoreRequestResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "#/definitions/StoreRequest"
+            }
+          }
+        }
+      }
+    },
+    "GetStoreRequestsResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/StoreRequest"
+              }
+            }
           }
         }
       }
