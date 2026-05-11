@@ -47,11 +47,30 @@ mongoose.connection.on("connected", async () => {
   }
 });
 
-const corsOrigins = ["http://localhost:3000", "http://10.111.70.191:3000"];
+// Whitelist for local dev. Production frontends on *.vercel.app are matched
+// dynamically below so preview URLs (e.g. shoping-ai-front-git-*.vercel.app)
+// work without redeploying the backend.
+const corsOrigins = [
+  "http://localhost:3000",
+  "http://10.111.70.191:3000",
+  "https://shoping-ai-front.vercel.app",
+];
+const extraOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: corsOrigins.length > 0 ? corsOrigins : true,
+    origin(origin, cb) {
+      // Allow non-browser tools (curl, Postman, server-to-server) where Origin
+      // is undefined.
+      if (!origin) return cb(null, true);
+      if (corsOrigins.includes(origin)) return cb(null, true);
+      if (extraOrigins.includes(origin)) return cb(null, true);
+      if (/\.vercel\.app$/i.test(new URL(origin).hostname)) return cb(null, true);
+      return cb(new Error(`CORS: origin ${origin} is not allowed`));
+    },
     credentials: true,
   }),
 );
@@ -125,21 +144,27 @@ function getLocalIP() {
   return "localhost";
 }
 
-const server = app.listen(PORT, "0.0.0.0", () => {
-  const host = getLocalIP();
-  console.log(`Server listening on port ${PORT}`);
-  console.log(`  Local:   http://localhost:${PORT}`);
-  console.log(`  Network: http://${host}:${PORT}  <- for the frontend`);
-});
-
-// Allow long-running AI / image upload requests (3 minutes). Node defaults
-// to 5 min requestTimeout, but headersTimeout is only 60 s, so we raise both.
-server.requestTimeout = 5 * 60 * 1000;
-server.headersTimeout = 5 * 60 * 1000;
-server.keepAliveTimeout = 65 * 1000;
-
 // Mongoose query logging is very noisy and costs a lot when documents are
 // large (every query is JSON-stringified to the console). Opt in via env.
 if (process.env.MONGOOSE_DEBUG === "true") {
   mongoose.set("debug", true);
 }
+
+// On Vercel/Netlify (serverless) we do NOT call listen() — the platform wraps
+// the exported app as a single function handler. Listening locally is OK.
+if (!process.env.VERCEL) {
+  const server = app.listen(PORT, "0.0.0.0", () => {
+    const host = getLocalIP();
+    console.log(`Server listening on port ${PORT}`);
+    console.log(`  Local:   http://localhost:${PORT}`);
+    console.log(`  Network: http://${host}:${PORT}  <- for the frontend`);
+  });
+
+  // Allow long-running AI / image upload requests. Node defaults to 5 min
+  // requestTimeout, but headersTimeout is only 60 s, so we raise both.
+  server.requestTimeout = 5 * 60 * 1000;
+  server.headersTimeout = 5 * 60 * 1000;
+  server.keepAliveTimeout = 65 * 1000;
+}
+
+module.exports = app;
